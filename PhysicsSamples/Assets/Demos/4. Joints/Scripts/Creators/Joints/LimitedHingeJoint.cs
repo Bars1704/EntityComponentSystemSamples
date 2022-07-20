@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -30,9 +31,10 @@ namespace Unity.Physics.Authoring
         public override void Create(EntityManager entityManager, GameObjectConversionSystem conversionSystem)
         {
             UpdateAuto();
-            conversionSystem.World.GetOrCreateSystem<EndJointConversionSystem>().CreateJointEntity(
+            var physicsConstrainedBodyPair = GetConstrainedBodyPair(conversionSystem);
+            var jointEntity = conversionSystem.World.GetOrCreateSystem<EndJointConversionSystem>().CreateJointEntity(
                 this,
-                GetConstrainedBodyPair(conversionSystem),
+                physicsConstrainedBodyPair,
                 PhysicsJoint.CreateLimitedHinge(
                     new BodyFrame
                     {
@@ -49,6 +51,9 @@ namespace Unity.Physics.Authoring
                     math.radians(new FloatRange(MinAngle, MaxAngle))
                 )
             );
+
+
+            JointLinker.AddJointLink(physicsConstrainedBodyPair, jointEntity);
         }
     }
 }
